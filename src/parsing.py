@@ -6,15 +6,15 @@ parser = Lark(
 
           ?class : CLASS TYPE [INHERITS TYPE] OCURLY (feature SEMICOLON)* CCURLY
 
-        ?feature : ID OPAR [param (COMMA param)*] CPAR COLON TYPE OCURLY expr CCURLY
-                 | ID COLON TYPE [LEFT_ARROW expr]
+        ?feature : ID OPAR [param (COMMA param)*] CPAR COLON TYPE OCURLY expr CCURLY -> func_decl
+                 | ID COLON TYPE [LEFT_ARROW expr]  -> attr_decl
 
-          ?param : ID COLON TYPE
+          ?param : ID COLON TYPE -> param
 
            ?expr : ID LEFT_ARROW expr -> assign
                  | not
 
-            ?not : NOT not
+            ?not : NOT not -> not_expr
                  | comparison
 
      ?comparison : arithmetic LEQ arithmetic -> comparison_leq
@@ -30,16 +30,16 @@ parser = Lark(
                  | term SLASH factor -> term_div
                  | factor
 
-         ?factor : ISVOID factor
+         ?factor : ISVOID factor -> isvoid_expr
                  | tilde
 
-          ?tilde : TILDE tilde
+          ?tilde : TILDE tilde -> tilde_expr
                  | dispatch
 
-       ?dispatch : dispatch DOT ID OPAR [expr (COMMA expr)*] CPAR
+       ?dispatch : dispatch DOT ID OPAR [expr (COMMA expr)*] CPAR -> dispatch
                  | static_dispatch
 
-?static_dispatch : static_dispatch AT TYPE DOT ID OPAR [expr (COMMA expr)*] CPAR
+?static_dispatch : static_dispatch AT TYPE DOT ID OPAR [expr (COMMA expr)*] CPAR -> static_dispatch
                  | atom
 
            ?atom : IF expr THEN expr ELSE expr FI -> if_expr
@@ -49,13 +49,13 @@ parser = Lark(
                  | NEW TYPE -> new_expr
                  | OPAR expr CPAR -> parenthized_expr
                  | ID -> var_expr
-                 | OCURLY expr SEMICOLON [(expr SEMICOLON)*] CCURLY -> block
+                 | OCURLY expr SEMICOLON [(expr SEMICOLON)*] CCURLY -> block_expr
                  | constant
 
-       ?constant : INT
-                 | ESCAPED_STRING
-                 | TRUE
-                 | FALSE
+       ?constant : INT  -> integer
+                 | ESCAPED_STRING -> string
+                 | TRUE -> bool
+                 | FALSE -> bool
  
 // Terminals
 
@@ -115,7 +115,4 @@ ESAC : "esac"
     parser="lalr",
     transformer=None,
 )
-
-
-
 
