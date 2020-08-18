@@ -4,7 +4,7 @@ parser = Lark(
     """
           ?start : (class SEMICOLON)+
 
-          ?class : CLASS TYPE [INHERITS TYPE] OCURLY (feature SEMICOLON)* CCURLY
+          ?class : CLASS TYPE [INHERITS TYPE] OCURLY (feature SEMICOLON)* CCURLY -> cool_class
 
         ?feature : ID OPAR [param (COMMA param)*] CPAR COLON TYPE OCURLY expr CCURLY -> func_decl
                  | ID COLON TYPE [LEFT_ARROW expr]  -> attr_decl
@@ -52,10 +52,10 @@ parser = Lark(
                  | OCURLY expr SEMICOLON [(expr SEMICOLON)*] CCURLY -> block_expr
                  | constant
 
-       ?constant : INT  -> integer
-                 | ESCAPED_STRING -> string
-                 | TRUE -> bool
-                 | FALSE -> bool
+       ?constant : INT  -> integer_atom
+                 | ESCAPED_STRING -> string_atom
+                 | TRUE -> bool_atom
+                 | FALSE -> bool_atom
  
 // Terminals
 
