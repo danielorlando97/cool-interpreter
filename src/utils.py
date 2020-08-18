@@ -2,7 +2,7 @@ from lark import Tree, Token
 from print_tree import print_tree
 
 
-def adapt_tree(node, parent = None):
+def adapt_tree(node, parent=None):
     # if node is Token:
     try:
         result = Node(node.value, parent)
@@ -15,8 +15,6 @@ def adapt_tree(node, parent = None):
             adapt_tree(n, result)
         return result
 
-    
-
 
 class Node:
     def __init__(self, value, parent):
@@ -25,12 +23,11 @@ class Node:
         if parent is not None:
             parent.children.append(self)
 
+
 class Print_tree(print_tree):
     def get_children(self, node):
         return node.children
+
     def get_node_str(self, node):
         return str(node.value)
-
-    
-    
 
