@@ -1,6 +1,5 @@
-from lark import Transformer, v_args
-from cool_ast import (
-    AstNode,
+from lark import Transformer
+from src.cool_ast import (
     Program,
     CoolClass,
     FuncDecl,
@@ -16,7 +15,6 @@ from cool_ast import (
     Mult,
     Div,
     IsVoid,
-    Tilde,
     Dispatch,
     StaticDispatch,
     IfThenElse,
@@ -33,7 +31,7 @@ from cool_ast import (
 )
 
 
-class CalculateTree(Transformer):
+class GetTree(Transformer):
     def start(self, children):
         return Program(children)
 
@@ -67,9 +65,11 @@ class CalculateTree(Transformer):
             try:
                 if children[n].value == ")":
                     break
+                elif children[n].value == ",":
+                    n += 1
             except AttributeError:
                 param_list.append(children[n])
-                n += 2
+                n += 1
 
         n += 2
         return_type = children[n].value
@@ -81,7 +81,7 @@ class CalculateTree(Transformer):
         idx = children[0].value
         typex = children[2].value
         if len(children) > 3:
-            body = children[5]
+            body = children[4]
         else:
             body = None
 
@@ -123,8 +123,8 @@ class CalculateTree(Transformer):
     def tilde_expr(self, children):
         return IsVoid(children[1])
 
-    def Dispatch(self, children):
-        exp_type = children[0]
+    def dispatch(self, children):
+        exp = children[0]
         idx = children[2]
 
         args = []
@@ -137,9 +137,9 @@ class CalculateTree(Transformer):
                 args.append(children[n])
                 n += 2
 
-        return Dispatch(exp_type, idx, args)
+        return Dispatch(exp, idx, args)
 
-    def StaticDispatch(self, children):
+    def staticDispatch(self, children):
         exp_type = children[0]
         static_type = children[2]
         idx = children[4]
@@ -166,11 +166,12 @@ class CalculateTree(Transformer):
         decl_list = []
 
         n = 1
-        while children[n].value != "in":
+
+        while True:
 
             idx = children[n].value
             n += 2
-            typex = children[n].value
+            typex = children[n]
 
             if children[n + 1].value == "<-":
                 n += 2
@@ -181,7 +182,14 @@ class CalculateTree(Transformer):
             decl_list.append((idx, typex, expr))
             n += 1
 
+            if children[n].value == "in":
+                break
+
+            n += 1
+
         body = children[n + 1]
+
+        print(decl_list)
 
         return LetIn(decl_list, body)
 
@@ -212,9 +220,14 @@ class CalculateTree(Transformer):
         expr_list = []
 
         n = 1
-        while children[n + 1].value != "}":
+        while True:
             expr_list.append(children[n])
             n += 2
+            try:
+                if children[n].value == "}":
+                    break
+            except AttributeError:
+                continue
 
         return Block(expr_list)
 

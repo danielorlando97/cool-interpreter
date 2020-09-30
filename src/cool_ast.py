@@ -6,6 +6,10 @@ class Program(AstNode):
     def __init__(self, class_list):
         self.cool_class_list = class_list
 
+    def __str__(self):
+        for cl in self.cool_class_list:
+            return str(cl)
+
 
 class CoolClass(AstNode):
     def __init__(self, feature_list, name, inherit=None):
@@ -13,16 +17,27 @@ class CoolClass(AstNode):
         self.name = name
         self.inherit = inherit
 
+    def __str__(self):
+        result = ""
+        result = result + str(self.name + ":" + self.inherit) + "\n"
+        for ft in self.feature_list:
+            result = result + "    " + str(ft) + "\n"
+
+        return result
+
 
 class Feature(AstNode):
     pass
 
 
 class AttrDecl(Feature):
-    def __init__(self, idx, typex, value):
+    def __init__(self, idx, typex, body):
         self.id = idx
         self.type = typex
-        self.value = value
+        self.body = body
+
+    def __str__(self):
+        return str(self.id + "," + self.type + " -> " + str(self.body))
 
 
 class FuncDecl(Feature):
@@ -32,11 +47,26 @@ class FuncDecl(Feature):
         self.body = body
         self.type = typex
 
+    def __str__(self):
+        return str(
+            self.id
+            + "("
+            + str([str(p) for p in self.params])
+            + ")"
+            + " : "
+            + self.type
+            + " -> "
+            + str(self.body)
+        )
+
 
 class Param(AstNode):
     def __init__(self, typex, idx):
         self.id = idx
         self.type = typex
+
+    def __str__(self):
+        return str(self.id + ": " + self.type)
 
 
 class Expression(CoolClass):
@@ -44,18 +74,25 @@ class Expression(CoolClass):
 
 
 class Dispatch(Expression):
-    def __init__(self, exp_type, idx, exp_list):
+    def __init__(self, exp, idx, exp_list):
         self.id = idx
-        self.exp_type = exp_type
+        self.exp_type = exp
         self.exp_list = exp_list
+
+    def __str__(self):
+        return str("Dispatch")
 
 
 class StaticDispatch(Expression):
-    def __init__(self, exp, especific_type, idx, exp_list):
+    def __init__(self, exp, specific_type, idx, exp_list):
         self.id = idx
         self.exp = exp
-        self.especific_type = especific_type
+        self.specific_type = specific_type
         self.exp_list = exp_list
+
+    def __str__(self):
+
+        return str("StaticDispatch")
 
 
 class LetIn(Expression):
@@ -63,27 +100,42 @@ class LetIn(Expression):
         self.decl_list = decl_list
         self.exp = exp
 
+    def __str__(self):
+        return str("LetIn " + self.decl_list + ": " + str(self.exp))
+
 
 class Case(Expression):
     def __init__(self, exp, case_list):
         self.exp = exp
         self.case_list = case_list
 
+    def __str__(self):
+        return str("Case " + str(self.exp) + ": " + self.case_list)
+
 
 class NewType(Expression):
     def __init__(self, typex):
         self.type = typex
+
+    def __str__(self):
+        return str("NewType")
 
 
 class Block(Expression):
     def __init__(self, expr_list):
         self.expr_list = expr_list
 
+    def __str__(self):
+        return str("block: " + str(self.expr_list))
+
 
 class Assign(Expression):
     def __init__(self, idx, value):
         self.id = idx
         self.value = value
+
+    def __str__(self):
+        return str("Assign")
 
 
 # Unary expressions
@@ -96,19 +148,23 @@ class Unary(Expression):
 
 
 class Not(Unary):
-    pass
+    def __str__(self):
+        return str("Not " + str(self.exp))
 
 
 class IsVoid(Unary):
-    pass
+    def __str__(self):
+        return str("IsVoid? " + str(self.exp))
 
 
 class Tilde(Unary):
-    pass
+    def __str__(self):
+        return str("Tilde")
 
 
 class ParenthExp(Unary):
-    pass
+    def __str__(self):
+        return str("(" + str(self.exp) + ")")
 
 
 # Binary expressions
@@ -126,15 +182,18 @@ class Comparisson(Binary):
 
 
 class Leq(Comparisson):
-    pass
+    def __str__(self):
+        return str("Leq")
 
 
 class Eq(Comparisson):
-    pass
+    def __str__(self):
+        return str("Eq")
 
 
 class Le(Comparisson):
-    pass
+    def __str__(self):
+        return str("Le")
 
 
 class Arithmetic(Binary):
@@ -142,23 +201,28 @@ class Arithmetic(Binary):
 
 
 class Plus(Arithmetic):
-    pass
+    def __str__(self):
+        return str("Plus")
 
 
 class Minus(Arithmetic):
-    pass
+    def __str__(self):
+        return str("Minus")
 
 
 class Mult(Arithmetic):
-    pass
+    def __str__(self):
+        return str("Mult")
 
 
 class Div(Arithmetic):
-    pass
+    def __str__(self):
+        return str("Div")
 
 
 class WhileLoop(Binary):
-    pass
+    def __str__(self):
+        return str("While")
 
 
 # Ternary expressions
@@ -173,7 +237,8 @@ class Ternary(Expression):
 
 
 class IfThenElse(Ternary):
-    pass
+    def __str__(self):
+        return str("IfThenElse")
 
 
 # Atoms
@@ -186,17 +251,21 @@ class Atom(Expression):
 
 
 class IntExp(Atom):
-    pass
+    def __str__(self):
+        return str("Int")
 
 
 class StringExp(Atom):
-    pass
+    def __str__(self):
+        return str("String")
 
 
 class BoolExp(Atom):
-    pass
+    def __str__(self):
+        return str("Bool")
 
 
 class IdExp(Atom):
-    pass
+    def __str__(self):
+        return str("Id")
 
