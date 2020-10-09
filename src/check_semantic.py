@@ -13,6 +13,7 @@ from src.semantic import (
     IntType,
     BoolType,
     StringType,
+    AutoType,
 )
 from src.cool_ast import (
     AstNode,
@@ -78,6 +79,7 @@ class TypeCollector(object):
         self.context.types["Void"] = VoidType()
         self.context.types["Bool"] = BoolType()
         self.context.types["String"] = StringType()
+        self.context.types["AUTO_TYPE"] = AutoType()
         for cl in node.cool_class_list:
             self.visit(cl)
 

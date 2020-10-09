@@ -116,7 +116,7 @@ class Type:
         return plain.values() if clean else plain
 
     def conforms_to(self, other):
-        return (
+        return (self == AutoType() or other == AutoType()) or (
             other.bypass()
             or self == other
             or self.parent is not None
@@ -193,6 +193,14 @@ class StringType(Type):
 
     def __eq__(self, other):
         return other.name == self.name or isinstance(other, StringType)
+
+
+class AutoType(Type):
+    def __init__(self):
+        Type.__init__(self, "AUTO_TYPE")
+
+    def __eq__(self, other):
+        return other.name == self.name or isinstance(other, AutoType)
 
 
 class Context:
