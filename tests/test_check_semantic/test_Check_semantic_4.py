@@ -17,8 +17,7 @@ def test4():
             a : AUTO_TYPE <- 5 ;
             b : String ;
 
-            met2 ( e : String ) : String {
-                    
+            met2 ( e : String ) : String {                    
                     b <- a
             } ;
         } ;

@@ -51,3 +51,14 @@ def get_common_ancestor(type_1, type_2, context):
 
     return object_type
 
+
+def find_types(self, context, method_name):
+    types = []
+    for key, ty in context.types.items():
+        for met in ty.methods:
+            if met.name == method_name:
+                types.append(key)
+
+
+def intersection(list1, list2):
+    return list(set(list1) & set(list2))

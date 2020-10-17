@@ -33,10 +33,17 @@ from src.cool_ast import (
 
 class GetTree(Transformer):
     def start(self, children):
-        return Program(children)
+        class_list = []
+        for item in children:
+            try:
+                if item.value == ";":
+                    pass
+            except AttributeError:
+                class_list.append(item)
+        return Program(class_list)
 
     def cool_class(self, children):
-        name = children[1]
+        name = children[1].value
         if children[2].value == "inherits":
             inherit = children[3].value
             n = 5
@@ -58,7 +65,7 @@ class GetTree(Transformer):
         return CoolClass(feat_list, name, inherit)
 
     def func_decl(self, children):
-        idx = children[0]
+        idx = children[0].value
         param_list = []
         n = 2
         while n < len(children):
@@ -188,8 +195,6 @@ class GetTree(Transformer):
             n += 1
 
         body = children[n + 1]
-
-        print(decl_list)
 
         return LetIn(decl_list, body)
 
