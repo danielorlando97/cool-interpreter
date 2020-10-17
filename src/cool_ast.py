@@ -14,12 +14,12 @@ class Program(AstNode):
 class CoolClass(AstNode):
     def __init__(self, feature_list, name, inherit=None):
         self.feature_list = feature_list
-        self.name = name
+        self.id = name
         self.inherit = inherit
 
     def __str__(self):
         result = ""
-        result = result + str(self.name + ":" + self.inherit) + "\n"
+        result = result + str(self.id + ":" + self.inherit) + "\n"
         for ft in self.feature_list:
             result = result + "    " + str(ft) + "\n"
 
@@ -76,7 +76,7 @@ class Expression(CoolClass):
 class Dispatch(Expression):
     def __init__(self, exp, idx, exp_list):
         self.id = idx
-        self.exp_type = exp
+        self.exp = exp
         self.exp_list = exp_list
 
     def __str__(self):
@@ -265,7 +265,10 @@ class BoolExp(Atom):
         return str("Bool")
 
 
-class IdExp(Atom):
+class IdExp(Expression):
+    def __init__(self, lex):
+        self.id = lex
+
     def __str__(self):
         return str("Id")
 

@@ -86,7 +86,7 @@ class TypeCollector(object):
     @visitor.when(CoolClass)
     def visit(self, node):
         try:
-            self.context.create_type(node.name)
+            self.context.create_type(node.id)
         except SemanticError as err:
             self.errors.append(err.text)
 
@@ -108,7 +108,7 @@ class TypeBuilder:
 
     @visitor.when(CoolClass)
     def visit(self, node):
-        self.current_type = self.context.get_type(node.name)
+        self.current_type = self.context.get_type(node.id)
         if node.inherit is not None:
             try:
                 _type = self.context.get_type(node.inherit)
@@ -185,7 +185,7 @@ class TypeChecker:
 
     @visitor.when(CoolClass)
     def visit(self, node, scope):
-        self.current_type = self.context.get_type(node.name)
+        self.current_type = self.context.get_type(node.id)
         scope.define_variable("self", self.current_type)
         for attr in self.current_type.attributes:
             scope.define_variable(attr.name, attr.type)
@@ -230,7 +230,7 @@ class TypeChecker:
 
     @visitor.when(Dispatch)
     def visit(self, node, scope):
-        exp_type = self.visit(node.exp_type, scope)
+        exp_type = self.visit(node.exp, scope)
         try:
             method = exp_type.get_method(node.id)
         except SemanticError as e:
@@ -310,7 +310,7 @@ class TypeChecker:
     def visit(self, node, scope):
         _ = self.visit(node.exp, scope)
         return_type = None
-        first = True
+        # first = True
 
         for idx, _type, case_exp in node.case_list:
             try:
@@ -319,17 +319,15 @@ class TypeChecker:
                 typex = ErrorType()
                 self.errors.append(e.text)
 
-            new_scope = scope.parent
+            new_scope = scope.create_child()
             new_scope.define_variable(idx, typex)
             static_type = self.visit(case_exp, new_scope)
 
-            if first:
-                return_type = static_type
-                first = False
-            else:
-                return_type = get_common_ancestor(
-                    return_type, static_type, self.context
-                )
+            # if first:
+            #     return_type = static_type
+            #     first = False
+            # else:
+            return_type = get_common_ancestor(return_type, static_type, self.context)
 
         return return_type
 
@@ -411,7 +409,9 @@ class TypeChecker:
     def comp(self, node, scope):
         left_type = self.visit(node.left, scope)
         right_type = self.visit(node.right, scope)
-        if left_type != right_type:
+        if not left_type.conforms_to(right_type) and not right_type.conforms_to(
+            left_type
+        ):
             self.errors.append(INVALID_COMPARISSON % (left_type.name, right_type.name))
         return self.context.get_type("Bool")
 
@@ -464,11 +464,15 @@ class TypeChecker:
 
     @visitor.when(IdExp)
     def visit(self, node, scope):
-        var = scope.find_variable(node.lex)
+        var = scope.find_variable(node.id)
         if var is None:
             self.errors.append(
-                VARIABLE_NOT_DEFINED % (node.lex, self.current_method.name)
+                VARIABLE_NOT_DEFINED % (node.id, self.current_method.name)
             )
             return ErrorType()
         return var.type
+
+    @visitor.when(NewType)
+    def visit(self, node, scope):
+        return self.context.get_type(node.type)
 
